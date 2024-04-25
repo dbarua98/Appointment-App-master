@@ -10,6 +10,7 @@ import TextBox from "devextreme-react/text-box";
 import DateBox from "devextreme-react/date-box";
 import { SelectBox } from "devextreme-react/select-box";
 import { NumberBox } from 'devextreme-react/number-box';
+import DataGrid, { Column, Editing, RequiredRule as Required } from 'devextreme-react/data-grid';
 
 const ReceiptModal = ({
   show,
@@ -23,6 +24,7 @@ const ReceiptModal = ({
   itemList,
 
 }) => {
+  const [rowIndex,setRowIndex] =useState();
   const formattedItemOptions = itemList.map((item) => ({
     Name: item.ItemName,
     ID: item.ItemID,
@@ -208,7 +210,7 @@ const ReceiptModal = ({
           validationMessagePosition="down"
         >
         </TextBox>
-
+{/* 
         {receiptData.receiptDetail.map((item, index) => (
           <div key={index} className="d-md-flex gap-1 my-2">
             <Col >
@@ -328,7 +330,77 @@ const ReceiptModal = ({
               ></TextBox>
             </Col>
           </div>
-        ))}
+        ))} */}
+         <DataGrid
+            dataSource={receiptData.receiptDetail}
+            keyExpr="itemID"
+            showBorders={true}
+            onRowUpdated={(e) => {
+                handleValueChange(e.dataField, e.key, e.data);
+            }}
+            onCellClick={(e)=>setRowIndex(e.rowIndex)}
+            onSaving={(e)=>console.log("onsave",e)}
+        >
+            <Editing
+                mode="row"
+                allowUpdating={true}
+                allowAdding={true}
+                useIcons={true}
+                texts={{ confirmDeleteMessage: '' }}
+            />
+
+            <Column
+                dataField="itemID"
+                caption="Item Name"
+                editCellComponent={(props) => (
+                    <SelectBox
+                        dataSource={formattedItemOptions}
+                        displayExpr={"Name"}
+                        valueExpr={"ID"}
+                        searchEnabled={true}
+                        // onValueChanged={(e) => handleItemChange(e, props.rowIndex, props.data)}
+                        onValueChanged={(e)=>console.log(e)}
+                        // onFocusIn={(e)=>console.log("focus",e)}
+                    />
+                )}
+            >
+                {/* <Required /> */}
+            </Column>
+            <Column
+                dataField="rate"
+                caption="Rate"
+                dataType="number"
+            >
+                <Required />
+            </Column>
+            <Column
+                dataField="quantity"
+                caption="Quantity"
+                dataType="number"
+            >
+                <Required />
+            </Column>
+            <Column
+                dataField="unit"
+                caption="Gross Amount"
+                
+            />
+            <Column
+                dataField="discountPercent"
+                caption="Discount Percent"
+                dataType="number"
+            >
+                <Required />
+            </Column>
+            <Column
+                dataField="discount"
+                caption="Discount Amount"
+            />
+            <Column
+                dataField="amount"
+                caption="Amount"
+            />
+        </DataGrid>
         <Button variant="primary" onClick={handleAddRow}>
           Add Item
         </Button>
